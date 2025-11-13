@@ -1,0 +1,228 @@
+{
+  "name": "ScolarShip Eligibility Check",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "ScolarShip Eligilibity Check",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Student Number",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ID",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Percentage",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone Number",
+              "fieldType": "number",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "80a5809b-2603-4368-9a49-ad4bb42a6858",
+      "name": "On form submission",
+      "webhookId": "a9f70d07-6484-48d2-9c83-da8773eb6ba3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d346416-d335-41ba-a984-c61e8fcc04d7",
+              "name": "Full Name",
+              "value": "={{ $json['Full Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "246e749f-bd43-4db9-856e-213c423ccc1a",
+              "name": "Email ID",
+              "value": "={{ $json['Email ID'] }}",
+              "type": "string"
+            },
+            {
+              "id": "c25ad5ca-3bf8-48d6-8eb7-2a96bbcb2e8e",
+              "name": "Phone Number",
+              "value": "=+91 {{ $json['Phone Number'] }}",
+              "type": "string"
+            },
+            {
+              "id": "585bf398-5437-4cac-a4cb-a206b6c245a5",
+              "name": "Student Number",
+              "value": "={{ $json['Student Number'] }}",
+              "type": "number"
+            },
+            {
+              "id": "d17087e2-6f87-4ee9-9f9b-1693ec8cf8d9",
+              "name": "Percentage",
+              "value": "={{ $json.Percentage }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9016f4ea-36da-4054-a635-eca8cef410ee",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1c82ad2e-101d-45a5-a22c-3d462bb3ebb5",
+              "leftValue": "={{ $json.Percentage }}",
+              "rightValue": 80,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "435f8199-aab7-430a-a3bf-1d4c8de4540c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Email ID'] }}",
+        "subject": "ScolarShip Eligibility",
+        "message": "=Hello  {{ $('On form submission').item.json['Full Name'] }},\nYour Score is {{ $('On form submission').item.json.Percentage }}%,\nYou are Eligible for Scolarship!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "c662e4f4-8353-4eba-9297-a8f5735b7f84",
+      "name": "Send a message",
+      "webhookId": "a9bddf22-2b1e-45b0-8217-2042423da9b5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VygHmnceZWv3uzi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Email ID'] }}",
+        "subject": "ScolarShip Eligibility",
+        "message": "=Hello  {{ $('On form submission').item.json['Full Name'] }},\nYour Score is {{ $('On form submission').item.json.Percentage }}%,\nYou are not Eligible for Scolarship!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        96
+      ],
+      "id": "53062011-f748-4170-b1b2-3321eec54ea2",
+      "name": "Send a message1",
+      "webhookId": "a9bddf22-2b1e-45b0-8217-2042423da9b5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "4VygHmnceZWv3uzi",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7fe95adc-ca79-4c44-aa26-c9aec4f01406",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e8b0536bc53ff064f5ed5a3ae8b5fd6f7f608718a309fb790fb47c4e6c7e179a"
+  },
+  "id": "IwbDxmDIg3Bx9vRP",
+  "tags": []
+}
