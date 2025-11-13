@@ -1,0 +1,166 @@
+{
+  "name": "Telegram Auto Generate Images",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "22876037-4565-40f8-888b-1f8e6f08d7fa",
+      "name": "Telegram Trigger",
+      "webhookId": "75e451a2-6cb5-426d-9ee0-dbff54f427aa",
+      "credentials": {
+        "telegramApi": {
+          "id": "lTmwDd1iwKV354cj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are an expert prompt engineer.\n\nA user will provide a short message or request.  \nYour task is to transform that message into a complete, clear, and actionable AI prompt that another model can understand and execute effectively."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a2375f02-b3d1-4130-b6c4-99672ffa2f88",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        224
+      ],
+      "id": "16bb12a6-55d7-41d2-99cb-92eeb687a9c3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "VqEYFica30Kxdlj1",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        576,
+        0
+      ],
+      "id": "30c31c85-8f10-456d-b22c-fa20c79193ed",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "BoQdnq3oNT1iqwDI",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "8d0d9f39-bd30-4373-9d72-bda19c943868",
+      "name": "Send a photo message",
+      "webhookId": "e27459d1-dfb8-4999-a2ab-3d56184d8b97",
+      "credentials": {
+        "telegramApi": {
+          "id": "lTmwDd1iwKV354cj",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e4708dee-1409-4230-a55b-c578c669dede",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e8b0536bc53ff064f5ed5a3ae8b5fd6f7f608718a309fb790fb47c4e6c7e179a"
+  },
+  "id": "TN96svUyxqqygb5X",
+  "tags": []
+}
